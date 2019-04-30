@@ -24,7 +24,4 @@ public:
       content[i] = a.content[i];
     }
   }
-
-
-
 };
