@@ -1,6 +1,3 @@
-/// ipmlementacja klasy hashtable
-/// docelowo na szablonach dla wszystkich podstawowych typów
-
 class HastItem {
 private:
   int key;
