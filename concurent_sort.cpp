@@ -6,6 +6,7 @@
 #include <mutex>
 
 #define LEN 90000000
+#define THREADS 8
 
 using namespace std;
 
@@ -103,7 +104,7 @@ void testing() {
    //     cout << x << " ";
    // cout << endl;
     mutex M;
-    int nr_of_threads = 6;
+    int nr_of_threads = THREADS;
     s1 = time(NULL);
     concurent_sort2(second, &nr_of_threads, M, 0, second.size() - 1);
     s2 = time(NULL);
