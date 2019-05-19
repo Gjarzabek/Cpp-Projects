@@ -5,7 +5,7 @@
 #include <cstdlib>
 #include <mutex>
 
-#define LEN 5
+#define LEN 90000000
 
 using namespace std;
 
@@ -64,9 +64,9 @@ void concurent_sort2(vector <T> & tab, int * n_of, mutex & M, int i , int q) {
         M.lock();
         if (*n_of > 1) {
             *n_of -= 2;
+            M.unlock();
             t1 = thread(concurent_sort2<T>, ref(tab), n_of, ref(M), i, s);
             t2 = thread(concurent_sort2<T>, ref(tab), n_of, ref(M), s + 1, q);
-            M.unlock();
             t1.join();
             t2.join();
             M.lock();
@@ -77,27 +77,11 @@ void concurent_sort2(vector <T> & tab, int * n_of, mutex & M, int i , int q) {
             M.unlock();
             merge_sort(tab, i, s);
             merge_sort(tab, s+1, q);
-            merge_tab(tab, i, s, s+1, q);
         }
+        merge_tab(tab, i, s, s+1, q);
+    }
+}
 
-    }
-}
-/*
-template <class T>
-void concurent_sort(vector <T> & tab, int n_of_threads = 2) {
-    int n = tab.size() / n_of_threads;
-    int p = 0, q = n;
-    thread th_tab[n_of_threads];
-    for (int i = 0; i < n_of_threads - 1; ++i) {
-        th_tab[i] = thread(merge_sort<T>, ref(tab), p, q-1);
-        p += n;
-        q += n;
-    }
-    th_tab[n_of_threads-1] = thread(merge_sort<T>, ref(tab), p, tab.size() - 1);
-    for (int i = 0; i < n_of_threads; ++i)
-        th_tab[i].join();
-}
-*/
 void testing() {
     std::vector<int> first;
     std::vector<int> second;
@@ -107,32 +91,32 @@ void testing() {
         first.push_back(a);
         second.push_back(a);
     }
-    for (int x: first)
-        cout << x << " ";
-    cout << endl;
+   // for (int x: first)
+   //     cout << x << " ";
+   // cout << endl;
     time_t s1 = time(NULL);
     merge_sort(first, 0, first.size() - 1);
     time_t s2 = time(NULL);
-    cout << "Merge sort: " << difftime(s2, s1) << "sekund\n";
-    cout << "Result:\n";
-    for (int x: first)
-        cout << x << " ";
-    cout << endl;
+    cout << "Merge sort: " << difftime(s2, s1) << " sek\n";
+   // cout << "Result:\n";
+   // for (int x: first)
+   //     cout << x << " ";
+   // cout << endl;
     mutex M;
     int nr_of_threads = 6;
     s1 = time(NULL);
     concurent_sort2(second, &nr_of_threads, M, 0, second.size() - 1);
     s2 = time(NULL);
-    cout << "Concurent sort: " << difftime(s2, s1) << "sekund\n";
-    cout << "Result:\n";
-    for (int x: second)
-        cout << x << " ";
-    cout << endl;
+    cout << "Concurent sort: " << difftime(s2, s1) << " sek\n";
+   // cout << "Result:\n";
+   // for (int x: second)
+   //     cout << x << " ";
+   // cout << endl;
 }
 
 int main()
 {
-    test();
+    testing();
     return 0;
 }
 
