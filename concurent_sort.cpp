@@ -1,64 +1,138 @@
 #include <iostream>
 #include <thread>
-#include <mutex>
 #include <vector>
+#include <ctime>
+#include <cstdlib>
+#include <mutex>
 
-using std::vector;
-using std::cout;
+#define LEN 5
 
-std::mutex increment;
+using namespace std;
 
-void countEven(const std::vector<int> & numbers, int & num) {
-    for (const auto x: numbers) {
-        if (x % 2 == 0) {
-            increment.lock();
-            ++num;
-            increment.unlock();
+int randof(int a, int b) {
+    return rand() % (b - a + 1) + a;
+}
+
+template <typename T>
+void merge_tab(vector<T> & tab, int i, int j, int k, int l) {
+    vector<T> help_tab(l - i + 1);
+    int akt = 0;
+    while (i <= j && k <= l) {
+        if (tab[i] < tab[k]) {
+            help_tab[akt++] = tab[i];
+            ++i;
         }
+        else if (tab[i] > tab[k]) {
+            help_tab[akt++] = tab[k];
+            ++k;
+        }
+        else {
+            help_tab[akt++] = tab[i];
+            help_tab[akt++] = tab[i];
+            ++i;
+            ++k;
+        }
+    }
+    while (i <= j) {
+        help_tab[akt++] = tab[i++];
+    }
+    while (k <= l) {
+        help_tab[akt++] = tab[k++];
+    }
+    while (--akt >= 0) {
+        tab[l--] = help_tab[akt];
     }
 }
 
-vector<int>* twoSum(vector<int>& nums, int target) {
-        int i = 0;
-        int j = nums.size()-1;
-        vector<int> *a = new vector<int>(2);
-        while (i < j) {
-            if (nums[i] + nums[j] < target)
-                ++i;
-            else if (nums[i] + nums[j] > target)
-                --j;
-            else {
-                (*a)[0] = i;
-                (*a)[1] = j;
-                break;
-            }
-        }
-        return a;
+
+
+template <class T>
+void merge_sort(vector<T> & tab, int i , int q) {
+    if (i < q) {
+        int s = (i+q)/2;
+        merge_sort(tab, i, s);
+        merge_sort(tab, s+1, q);
+        merge_tab(tab, i, s, s+1, q);
+    }
 }
-int main() {
-    std::vector<int> numbers1 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-    std::vector<int> numbers2 = {11, 12, 13, 14, 15, 16, 17, 18};
 
-    int numEven = 0;
+template <class T>
+void concurent_sort2(vector <T> & tab, int * n_of, mutex & M, int i , int q) {
+    if (i < q) {
+        int s = (i+q)/2;
+        thread t1,t2;
+        M.lock();
+        if (*n_of > 1) {
+            *n_of -= 2;
+            t1 = thread(concurent_sort2<T>, ref(tab), n_of, ref(M), i, s);
+            t2 = thread(concurent_sort2<T>, ref(tab), n_of, ref(M), s + 1, q);
+            M.unlock();
+            t1.join();
+            t2.join();
+            M.lock();
+            *n_of += 2;
+            M.unlock();
+        }
+        else {
+            M.unlock();
+            merge_sort(tab, i, s);
+            merge_sort(tab, s+1, q);
+            merge_tab(tab, i, s, s+1, q);
+        }
 
-    std::thread t1(countEven, std::ref(numbers1), std::ref(numEven));
-    std::thread t2(countEven, std::ref(numbers2), std::ref(numEven));
-
-    t1.join();
-    t2.join();
-
-    std::cout << "Total number of even numbers is: " << numEven << std::endl;*/
-    vector <int> num;
-    num.push_back(2);
-    num.push_back(4);
-    num.push_back(5);
-    num.push_back(7);
-    num.push_back(10);
-    for (int x: num)
+    }
+}
+/*
+template <class T>
+void concurent_sort(vector <T> & tab, int n_of_threads = 2) {
+    int n = tab.size() / n_of_threads;
+    int p = 0, q = n;
+    thread th_tab[n_of_threads];
+    for (int i = 0; i < n_of_threads - 1; ++i) {
+        th_tab[i] = thread(merge_sort<T>, ref(tab), p, q-1);
+        p += n;
+        q += n;
+    }
+    th_tab[n_of_threads-1] = thread(merge_sort<T>, ref(tab), p, tab.size() - 1);
+    for (int i = 0; i < n_of_threads; ++i)
+        th_tab[i].join();
+}
+*/
+void testing() {
+    std::vector<int> first;
+    std::vector<int> second;
+    srand(time(NULL));
+    for (int i = 0; i < LEN; ++i) {
+        int a = randof(-1000, 1000);
+        first.push_back(a);
+        second.push_back(a);
+    }
+    for (int x: first)
         cout << x << " ";
-    vector <int> *a = twoSum(num, 11);
-    cout << "\n";
-    for (int x: *a)
+    cout << endl;
+    time_t s1 = time(NULL);
+    merge_sort(first, 0, first.size() - 1);
+    time_t s2 = time(NULL);
+    cout << "Merge sort: " << difftime(s2, s1) << "sekund\n";
+    cout << "Result:\n";
+    for (int x: first)
         cout << x << " ";
+    cout << endl;
+    mutex M;
+    int nr_of_threads = 6;
+    s1 = time(NULL);
+    concurent_sort2(second, &nr_of_threads, M, 0, second.size() - 1);
+    s2 = time(NULL);
+    cout << "Concurent sort: " << difftime(s2, s1) << "sekund\n";
+    cout << "Result:\n";
+    for (int x: second)
+        cout << x << " ";
+    cout << endl;
+}
+
+int main()
+{
+    test();
     return 0;
 }
+
