@@ -1,5 +1,5 @@
 /**
-    Wspolbiezna przeszukiwarka plików
+    Wspolbiezna przeszukiwarka plik�w
 
     Program wczytuje fraze/slowo @szukana a nastepnie
     przeszukuje wszystkie piliki .txt o nazwach na wejsciu programu
@@ -11,14 +11,12 @@
 */
 
 #include <iostream>
-#include <thread>
-#include <vector>
-#include <fstream>
-#include <mutex>
-#include <string>
-#include <pair>
+#include "PhraseSearch.h"
 
 int main()
 {
+    PhraseSearch ph(3, "a");
+    ph.load_filenames();
+    ph.search_for();
     return 0;
 }
