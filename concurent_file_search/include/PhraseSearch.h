@@ -32,26 +32,40 @@ class PhraseSearch {
   private:
     short n_threads; // ilosc watkow
     string phrase;   // szukana fraza
-    mutex load_perm;        // zamek do wczytu z cin
+    unsigned loaded;
+    mutex load_perm;        // zamek do wczytu ze zbioru nazw pikow
     mutex output_perm;      // zamek do cout
+    vector <string> filenames;
+    void thread_task();
     void print_result(vector<pair<int, int>> & a, string & fn);
-    void searchfile();
+    void searchfile(string & file_name);
 
   public:
-    PhraseSearch() :n_threads(1), phrase("") {};
-    PhraseSearch(int n = THREADS, string ph = "") :n_threads(n), phrase(ph) {};
+    PhraseSearch() :n_threads(1), phrase(""), loaded(0) {};
+    PhraseSearch(int n = THREADS, string ph = "") :n_threads(n), phrase(ph), loaded(0) {};
     void Set_phrase(string & str) {
       phrase = str;
     };
+    void load_filenames() {
+      string current;
+      getline(cin, current);
+      while(!current.empty()) {
+        filenames.push_back(current);
+        getline(cin, current);
+      }
+      cout << "Phrase - " << phrase << endl;
+    };
     void search_for() {
-      thread thrs[n_threads];
+      vector<thread> thrs(n_threads);
       for (int i = 0; i < n_threads; ++i)
-        thrs[i] = thread();
-      for (int i = 0; i < n_threads; ++i)
+        thrs[i] = thread(&PhraseSearch::thread_task, this);
+      for (int i = 0; i < n_threads; ++i) {
         thrs[i].join();
+      }
     }
 };
 
 
 #endif // PHRASESEARCH_H
+
 
