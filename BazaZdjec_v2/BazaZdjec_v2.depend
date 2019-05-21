@@ -1,0 +1,35 @@
+# depslib dependency file v1.0
+1558457042 source:c:\workbench\bazazdjec_v2\main.cpp
+	"Photo.h"
+	"txtBase.h"
+	<iostream>
+
+1557847066 source:c:\workbench\bazazdjec_v2\src\photo.cpp
+	"photo.h"
+
+1558452730 c:\workbench\bazazdjec_v2\include\photo.h
+	<vector>
+	<iostream>
+	<utility>
+
+1558458547 source:c:\workbench\bazazdjec_v2\src\txtbase.cpp
+	"TxtBase.h"
+	"Photo.h"
+	<vector>
+	<iostream>
+	<utility>
+	<fstream>
+	<string>
+	<unordered_map>
+
+1558456992 c:\workbench\bazazdjec_v2\include\txtbase.h
+	<vector>
+	<iostream>
+	<utility>
+	<fstream>
+	<unordered_map>
+
+1558452633 c:\workbench\bazazdjec_v2\include\inc.h
+	"txtBase.h"
+	"photo.h"
+
